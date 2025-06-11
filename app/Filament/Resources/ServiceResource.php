@@ -20,7 +20,9 @@ use Filament\Forms\Components\Textarea;
 class ServiceResource extends Resource
 {
     protected static ?string $model = Service::class;
-
+    protected static ?string $navigationLabel = 'Servicios'; 
+    protected static ?string $modelLabel = 'Servicio'; 
+    protected static ?string $pluralModelLabel = 'Servicios';
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
     protected static ?string $navigationGroup = 'Gestión de Productos';
     protected static ?int $navigationSort = 1;
