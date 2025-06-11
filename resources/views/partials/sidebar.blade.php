@@ -9,16 +9,16 @@
                 <a href="{{ route('home') }}" class="block p-2 rounded hover:bg-gray-100 font-semibold {{ request()->routeIs('home') ? 'bg-gray-100 text-blue-600' : '' }}">Inicio</a>
             </li>
             <li>
-                <a href="{{ route('dashboard') }}" class="block p-2 rounded hover:bg-gray-100 font-semibold {{ request()->routeIs('dashboard') ? 'bg-gray-100 text-blue-600' : '' }}">Movimientos</a>
+                <a href="{{ route('movement') }}" class="block p-2 rounded hover:bg-gray-100 font-semibold {{ request()->routeIs('movement') ? 'bg-gray-100 text-blue-600' : '' }}">Movimientos</a>
             </li>
             <li>
-                <a href="{{ route('cuentas') }}" class="block p-2 rounded hover:bg-gray-100 font-semibold {{ request()->routeIs('cuentas') ? 'bg-gray-100 text-blue-600' : '' }}">Cuentas</a>
+                <a href="{{ route('account') }}" class="block p-2 rounded hover:bg-gray-100 font-semibold {{ request()->routeIs('account') ? 'bg-gray-100 text-blue-600' : '' }}">Cuentas</a>
             </li>
             <li>
-                <a href="{{ route('clientes') }}" class="block p-2 rounded hover:bg-gray-100 font-semibold {{ request()->routeIs('clientes') ? 'bg-gray-100 text-blue-600' : '' }}">Clientes</a>
+                <a href="{{ route('customer') }}" class="block p-2 rounded hover:bg-gray-100 font-semibold {{ request()->routeIs('customer') ? 'bg-gray-100 text-blue-600' : '' }}">Clientes</a>
             </li>
             <li>
-                <a href="{{ route('servicios') }}" class="block p-2 rounded hover:bg-gray-100 font-semibold {{ request()->routeIs('servicios') ? 'bg-gray-100 text-blue-600' : '' }}">Servicios</a>
+                <a href="{{ route('service') }}" class="block p-2 rounded hover:bg-gray-100 font-semibold {{ request()->routeIs('service') ? 'bg-gray-100 text-blue-600' : '' }}">Servicios</a>
             </li>
         </ul>
 
