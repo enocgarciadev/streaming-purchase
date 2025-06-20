@@ -2,12 +2,16 @@
 
 namespace App\Filament\Pages;
 
-use Filament\Pages\Page;
+use Filament\Pages\Dashboard as BaseDashboard;
+use App\Filament\Widgets\StatsOverview; // Importa tu widget
 
-class Dashboard extends Page
+class Dashboard extends BaseDashboard
 {
-    protected static ?string $navigationIcon = 'heroicon-o-document-text';
-    
+    protected function getHeaderWidgets(): array
+    {
+        return [
+            StatsOverview::class, // Tu widget de estadísticas
+        ];
+    }
 
-    protected static string $view = 'filament.pages.dashboard';
 }
