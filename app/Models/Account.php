@@ -15,14 +15,14 @@ class Account extends Model
         'service_id',
         'email',
         'password',
+        'secondary_password',
         'billing_date',
     ];
 
-    // Opcional: Asegúrate de que la contraseña siempre se guarde hasheada
+    // ¡IMPORTANTE! Eliminamos 'password' y 'secondary_password' del array de casts.
     protected function casts(): array
     {
         return [
-            'password' => 'hashed', // Esto hashea automáticamente la contraseña al asignarla
             'billing_date' => 'date',
         ];
     }

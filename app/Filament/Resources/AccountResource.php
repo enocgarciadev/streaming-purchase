@@ -3,62 +3,57 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\AccountResource\Pages;
-use App\Filament\Resources\AccountResource\RelationManagers;
 use App\Models\Account;
-use App\Models\Service; // Importa el modelo Service
+use App\Models\Service;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
-use Filament\Forms\Components\Select; // Para el campo de selección del servicio
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\DatePicker; // Para la fecha de facturación
-use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Columns\ImageColumn;
+
 
 class AccountResource extends Resource
 {
     protected static ?string $model = Account::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-credit-card'; 
+    protected static ?string $navigationIcon = 'heroicon-o-key';
     protected static ?string $navigationGroup = 'Gestión de Cuentas';
-    protected static ?string $navigationLabel = 'Cuentas';
-    protected static ?string $modelLabel = 'Cuenta';
-    protected static ?string $pluralModelLabel = 'Cuentas';
-
+    protected static ?string $modelLabel = 'Cuenta de Servicio';
+    protected static ?string $pluralModelLabel = 'Cuentas de Servicio';
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
-                Select::make('service_id')
-                    ->label('Servicio')
-                    ->options(Service::all()->pluck('name', 'id')) // Carga los servicios desde la DB
-                    ->required()
-                    ->searchable()
-                    ->preload(), // Precarga opciones si hay muchas
-
-                TextInput::make('email')
-                    ->label('Correo de la Cuenta')
-                    ->email()
-                    ->unique(ignoreRecord: true)
-                    ->required(),
-
-                TextInput::make('password')
-                    ->label('Contraseña')
-                    ->password()
-                    ->dehydrateStateUsing(fn (string $state): string => bcrypt($state)) // Hashea la contraseña al guardar
-                    ->dehydrated(fn (?string $state): bool => filled($state)) // Solo guarda si el campo no está vacío
-                    ->required(fn (string $operation): bool => $operation === 'create') // Requerido solo al crear
-                    ->currentPassword(false), // Importante si tienes reglas de confirmación de password de Laravel
-
-                DatePicker::make('billing_date')
-                    ->label('Fecha de Facturación')
-                    ->required()
-                    ->native(false) // Para usar el selector de fecha más moderno
-                    ->weekStartsOnSunday(false), // O true, dependiendo de tu convención
+                Forms\Components\Section::make('Detalles de la Cuenta')
+                    ->schema([
+                        Forms\Components\Select::make('service_id')
+                            ->label('Servicio Asociado')
+                            ->relationship('service', 'name')
+                            ->required()
+                            ->searchable(),
+                        Forms\Components\TextInput::make('email')
+                            ->label('Correo de la Cuenta')
+                            ->email()
+                            ->required()
+                            ->unique(ignoreRecord: true)
+                            ->maxLength(255),
+                        // CAMBIO: No usar password() para que sea visible en el formulario y no se deshidrate
+                        Forms\Components\TextInput::make('password')
+                            ->label('Contraseña Principal de la Cuenta')
+                            ->required() // Sigue siendo requerido al crear
+                            ->maxLength(255),
+                        // CAMBIO: No usar password() para que sea visible en el formulario y no se deshidrate
+                        Forms\Components\TextInput::make('secondary_password')
+                            ->label('Contraseña del Perfil/Secundaria')
+                            ->nullable() // Puede ser nulo
+                            ->maxLength(255),
+                        Forms\Components\DatePicker::make('billing_date')
+                            ->label('Fecha de Facturación')
+                            ->required(),
+                    ])->columns(2),
             ]);
     }
 
@@ -66,45 +61,37 @@ class AccountResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('service.name') // Muestra el nombre del servicio relacionado
+                ImageColumn::make('service.image_path') // <-- ¡Aquí la relación anidada!
+                    ->label('Imagen Servicio')
+                    ->square(),
+                Tables\Columns\TextColumn::make('service.name')
                     ->label('Servicio')
                     ->searchable()
                     ->sortable(),
-
-                TextColumn::make('email')
+                Tables\Columns\TextColumn::make('email')
                     ->label('Correo')
                     ->searchable()
                     ->sortable(),
+                // CAMBIO: Mostrar la contraseña principal en la tabla
+                Tables\Columns\TextColumn::make('password')
+                    ->label('Contraseña Principal')
+                    ->searchable() // Puedes buscarla si quieres
+                    ->toggleable(isToggledHiddenByDefault: false), // Visible por defecto
 
-                TextColumn::make('billing_date')
-                    ->label('Facturación')
+                // CAMBIO: Mostrar la contraseña secundaria en la tabla
+                Tables\Columns\TextColumn::make('secondary_password')
+                    ->label('Contraseña Secundaria')
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: false), // Visible por defecto
+
+                Tables\Columns\TextColumn::make('billing_date')
+                    ->label('Fecha de Facturación')
                     ->date()
                     ->sortable(),
-
-                TextColumn::make('profiles_count') // Para mostrar el conteo de perfiles actuales
-                    ->counts('profiles') // Cuenta la relación 'profiles'
-                    ->label('Perfiles (Actual/Máx)')
-                    ->getStateUsing(function (Account $record): string {
-                        $maxProfiles = $record->service->number_of_profiles ?? 0;
-                        $currentProfiles = $record->profiles->count();
-                        return "$currentProfiles / $maxProfiles";
-                    })
-                    ->color(function (Account $record): string {
-                        $maxProfiles = $record->service->number_of_profiles ?? 0;
-                        $currentProfiles = $record->profiles->count();
-                        if ($maxProfiles > 0 && $currentProfiles >= $maxProfiles) {
-                            return 'danger'; // Si está lleno
-                        }
-                        if ($maxProfiles > 0 && $currentProfiles > $maxProfiles * 0.8) {
-                            return 'warning'; // Si está casi lleno
-                        }
-                        return 'success'; // Si hay espacio
-                    }),
             ])
             ->filters([
-                // Filtro por servicio
                 Tables\Filters\SelectFilter::make('service_id')
-                    ->label('Por Servicio')
+                    ->label('Servicio')
                     ->options(Service::all()->pluck('name', 'id')),
             ])
             ->actions([
@@ -121,7 +108,7 @@ class AccountResource extends Resource
     public static function getRelations(): array
     {
         return [
-            RelationManagers\ProfilesRelationManager::class, // <-- ¡Importante!
+            \App\Filament\Resources\AccountResource\RelationManagers\ProfilesRelationManager::class,
         ];
     }
 

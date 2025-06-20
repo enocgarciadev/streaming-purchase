@@ -15,7 +15,9 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Forms\Components\TextInput; 
+use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Textarea;
+use Filament\Tables\Columns\ImageColumn;
 
 class ServiceResource extends Resource
 {
@@ -35,6 +37,13 @@ class ServiceResource extends Resource
                     ->label('Nombre del Servicio')
                     ->required()
                     ->maxLength(255),
+
+                FileUpload::make('image_path') // <-- ¡Añade este campo!
+                    ->label('Imagen del Servicio')
+                    ->image() // Valida que sea una imagen
+                    ->directory('service-images') // Directorio donde se guardarán las imágenes en storage/app/public/
+                    ->nullable() // Puede ser nulo si la imagen no es obligatoria
+                    ->visibility('public'), // Asegura que las imágenes sean accesibles públicamente
 
                 TextInput::make('number_of_profiles')
                     ->label('Número de Perfiles')
@@ -56,6 +65,11 @@ class ServiceResource extends Resource
                     ->label('Nombre')
                     ->searchable()
                     ->sortable(),
+
+                ImageColumn::make('image_path') // <-- ¡Añade esta columna!
+                    ->label('Imagen')
+                    ->height(40) // Opcional: ajusta la altura de la imagen en la tabla
+                    ->width(40), // Opcional: ajusta el ancho
 
                 TextColumn::make('number_of_profiles')
                     ->label('Perfiles')

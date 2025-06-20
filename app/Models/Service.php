@@ -12,10 +12,14 @@ class Service extends Model
 
     protected $fillable = [
         'name',
+        'image_path',
         'number_of_profiles',
         'product_link',
     ];
 
+    /**
+     * Get the accounts for the Service.
+     */
     public function accounts(): HasMany
     {
         return $this->hasMany(Account::class);

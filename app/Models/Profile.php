@@ -13,6 +13,7 @@ class Profile extends Model
     protected $fillable = [
         'account_id',
         'name',
+        'pin'
     ];
 
     /**

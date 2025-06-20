@@ -33,6 +33,12 @@ class ProfilesRelationManager extends RelationManager
                     ->label('Nombre del Perfil')
                     ->required()
                     ->maxLength(255),
+                TextInput::make('pin')
+                    ->label('PIN del Perfil (4 dígitos)')
+                    ->numeric()
+                    ->minLength(4)
+                    ->maxLength(4)
+                    ->nullable(),
             ]);
     }
 
@@ -43,6 +49,10 @@ class ProfilesRelationManager extends RelationManager
             ->columns([
                 TextColumn::make('name')
                     ->label('Nombre del Perfil')
+                    ->searchable()
+                    ->sortable(),
+                TextColumn::make('pin')
+                    ->label('PIN del Perfil')
                     ->searchable()
                     ->sortable(),
             ])

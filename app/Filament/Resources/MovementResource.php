@@ -18,6 +18,7 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\ToggleButtons;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Columns\ImageColumn;
 
 // Si usaste el Enum
 use App\MovementType;
@@ -82,6 +83,9 @@ class MovementResource extends Resource
     {
         return $table
             ->columns([
+                ImageColumn::make('account.service.image_path') // <-- ¡Aquí la relación anidada!
+                    ->label('Imagen Servicio')
+                    ->square(),
                 TextColumn::make('account.email')
                     ->label('Cuenta')
                     ->searchable()
